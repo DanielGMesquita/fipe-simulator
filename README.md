@@ -1,7 +1,7 @@
-# Desafio
+# Simulador Fipe
 
 
-Vamos implementar uma aplicação para consultar o valor médio de veículos (carros, motos ou caminhões) de acordo com a tabela FIPE, que pode ser acessada através [desse site](https://veiculos.fipe.org.br/).
+Aplicação para consultar o valor médio de veículos (carros, motos ou caminhões) de acordo com a tabela FIPE, que pode ser acessada através [desse site](https://veiculos.fipe.org.br/).
 
 - A consulta aos valores dos veículos pelo site tem o seguinte fluxo:
 - Primeiramente é necessário escolher o tipo do veículo: carro, moto ou caminhão.
@@ -37,7 +37,7 @@ Vamos implementar uma aplicação para consultar o valor médio de veículos (ca
 
 ## Observações:
 
-- Para realização do desafio faremos o consumo de uma API, documentada [nesse link](https://deividfortuna.github.io/fipe/).
+- Realizamos consumo de uma API para obtenção de dados, documentada [nesse link](https://deividfortuna.github.io/fipe/).
 
 - De acordo com o escolhido (carro, moto, ou caminhão) vamos fazer uma chamada a um dos endpoints abaixo para buscar as marcas:
 
