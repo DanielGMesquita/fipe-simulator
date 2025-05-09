@@ -2,6 +2,7 @@ package br.dev.danielmesquita.fipesimulator.main;
 
 import br.dev.danielmesquita.fipesimulator.connection.APIProvider;
 import br.dev.danielmesquita.fipesimulator.enums.OptionURLs;
+import br.dev.danielmesquita.fipesimulator.model.Vehicle;
 import br.dev.danielmesquita.fipesimulator.model.VehicleBrands;
 import br.dev.danielmesquita.fipesimulator.model.VehicleDataByYear;
 import br.dev.danielmesquita.fipesimulator.model.VehicleModels;
@@ -102,9 +103,9 @@ public class Main {
     String urlYear = urlModel + "/" + yearOption;
     json = apiProvider.getApiData(urlYear);
 
-    Object jsonObject = objectMapper.readValue(json, Object.class);
+    Vehicle vehicle = objectMapper.readValue(json, Vehicle.class);
     scanner.close();
-    System.out.println(jsonObject);
+    System.out.println(vehicle.toString());
     System.exit(0);
   }
 }
