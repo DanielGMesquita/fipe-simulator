@@ -1,11 +1,25 @@
 package br.dev.danielmesquita.fipesimulator.main;
 
+import br.dev.danielmesquita.fipesimulator.connection.APIProvider;
+import br.dev.danielmesquita.fipesimulator.enums.OptionURLs;
+import br.dev.danielmesquita.fipesimulator.model.VehicleBrands;
+import br.dev.danielmesquita.fipesimulator.model.VehicleDataByYear;
+import br.dev.danielmesquita.fipesimulator.model.VehicleModels;
+import br.dev.danielmesquita.fipesimulator.service.DataConversionService;
+import br.dev.danielmesquita.fipesimulator.service.IDataConversionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
   private final Scanner scanner = new Scanner(System.in);
-  private final String url = "https://parallelum.com.br/fipe/api/v1/";
-  public void showMenu() {
+  private final APIProvider apiProvider = new APIProvider();
+  private final IDataConversionService dataConversionService = new DataConversionService();
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  public void showMenu() throws JsonProcessingException {
     System.out.println("Welcome to the Fipe Simulator! Select your type of vehicle:");
     System.out.println("Car");
     System.out.println("Motorcycle");
@@ -15,20 +29,66 @@ public class Main {
 
     String optionVariables;
 
-    while(true) {
-      if(option.toLowerCase().contains("car")) {
-        optionVariables = "car";
+    while (true) {
+      if (option.toLowerCase().contains("car")) {
+        optionVariables = OptionURLs.CAR.getUrl();
         break;
-      } else if(option.toLowerCase().contains("moto")) {
-        optionVariables = "motorcycle";
+      } else if (option.toLowerCase().contains("mot")) {
+        optionVariables = OptionURLs.MOTORCYCLE.getUrl();
         break;
-      } else if(option.toLowerCase().contains("truck")) {
-        optionVariables = "truck";
+      } else if (option.toLowerCase().contains("tru")) {
+        optionVariables = OptionURLs.TRUCK.getUrl();
         break;
       } else {
         System.out.println("Invalid option. Please try again.");
         option = scanner.nextLine();
       }
     }
+    String url = "https://parallelum.com.br/fipe/api/v1/";
+    String completeUrl = url + optionVariables;
+
+    String json = apiProvider.getApiData(completeUrl);
+
+    List<VehicleBrands> vehicleBrandsList =
+        dataConversionService.obtainObject(json, VehicleBrands.class);
+
+    System.out.println("Select the brand of the vehicle by code:");
+    vehicleBrandsList.stream()
+        .sorted(Comparator.comparing(VehicleBrands::getCode))
+        .forEach(System.out::println);
+
+    String brandOption = scanner.nextLine();
+
+    String urlBrand = completeUrl + "/" + brandOption + "/modelos";
+
+    json = apiProvider.getApiData(urlBrand);
+
+    VehicleModels vehicleBrandList =
+        dataConversionService.convertToObject(json, VehicleModels.class);
+
+    System.out.println("Select the model of the vehicle by code:");
+    vehicleBrandList.vehicleBrandsList().stream()
+        .sorted(Comparator.comparing(VehicleBrands::getCode))
+        .forEach(System.out::println);
+    String modelOption = scanner.nextLine();
+
+    String urlModel = urlBrand + "/" + modelOption + "/anos";
+
+    json = apiProvider.getApiData(urlModel);
+    List<VehicleDataByYear> vehicleDataByYearList =
+        dataConversionService.obtainObject(json, VehicleDataByYear.class);
+    System.out.println("Select the year of the vehicle by code:");
+    vehicleDataByYearList.stream()
+        .sorted(Comparator.comparing(VehicleDataByYear::name))
+        .forEach(System.out::println);
+
+    String yearOption = scanner.nextLine();
+    String urlYear = urlModel + "/" + yearOption;
+    json = apiProvider.getApiData(urlYear);
+
+    Object jsonObject = objectMapper.readValue(json, Object.class);
+    scanner.close();
+    System.out.println(jsonObject);
+    System.exit(0);
   }
 }
