@@ -10,6 +10,7 @@ import br.dev.danielmesquita.fipesimulator.service.DataConversionService;
 import br.dev.danielmesquita.fipesimulator.service.IDataConversionService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
@@ -94,18 +95,18 @@ public class Main {
     List<VehicleDataByYear> vehicleDataByYearList =
         dataConversionService.obtainObject(json, VehicleDataByYear.class);
 
-    System.out.println("Select the year of the vehicle by code:");
-    vehicleDataByYearList.stream()
-        .sorted(Comparator.comparing(VehicleDataByYear::name))
-        .forEach(System.out::println);
+    List<Vehicle> vehicles = new ArrayList<>();
 
-    String yearOption = scanner.nextLine();
-    String urlYear = urlModel + "/" + yearOption;
-    json = apiProvider.getApiData(urlYear);
+    for (VehicleDataByYear vehicleDataByYear : vehicleDataByYearList) {
+      String urlYear = urlModel + "/" + vehicleDataByYear.code();
+      String jsonYear = apiProvider.getApiData(urlYear);
+      Vehicle vehicle = objectMapper.readValue(jsonYear, Vehicle.class);
+      vehicles.add(vehicle);
+    }
+    vehicles.sort(Comparator.comparing(Vehicle::year));
+    vehicles.forEach(vehicle -> System.out.println(vehicle.toString()));
 
-    Vehicle vehicle = objectMapper.readValue(json, Vehicle.class);
     scanner.close();
-    System.out.println(vehicle.toString());
     System.exit(0);
   }
 }
