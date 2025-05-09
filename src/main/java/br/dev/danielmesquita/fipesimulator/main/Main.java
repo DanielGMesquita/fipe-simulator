@@ -66,17 +66,33 @@ public class Main {
     VehicleModels vehicleBrandList =
         dataConversionService.convertToObject(json, VehicleModels.class);
 
-    System.out.println("Select the model of the vehicle by code:");
+    System.out.println("Models available:");
     vehicleBrandList.vehicleBrandsList().stream()
         .sorted(Comparator.comparing(VehicleBrands::getCode))
         .forEach(System.out::println);
+
+    System.out.println("Select a model by typing the name or part of it:");
     String modelOption = scanner.nextLine();
 
-    String urlModel = urlBrand + "/" + modelOption + "/anos";
+    List<VehicleBrands> filteredModelList =
+        vehicleBrandList.vehicleBrandsList().stream()
+            .filter(
+                vehicleBrand ->
+                    vehicleBrand.getName().toLowerCase().contains(modelOption.toLowerCase()))
+            .toList();
+
+    System.out.println("Filtered model list:");
+    filteredModelList.forEach(System.out::println);
+
+    System.out.println("Select the model of the vehicle by code:");
+    String modelCode = scanner.nextLine();
+
+    String urlModel = urlBrand + "/" + modelCode + "/anos";
 
     json = apiProvider.getApiData(urlModel);
     List<VehicleDataByYear> vehicleDataByYearList =
         dataConversionService.obtainObject(json, VehicleDataByYear.class);
+
     System.out.println("Select the year of the vehicle by code:");
     vehicleDataByYearList.stream()
         .sorted(Comparator.comparing(VehicleDataByYear::name))
